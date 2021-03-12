@@ -33,7 +33,7 @@ public class UsuarioService{
     }
 
     public ResponseEntity findByNome(String nome) {
-        var it = repository.findByNome(nome);
+        var it = repository.findByNomeIgnoreCase(nome);
         if(it.isEmpty()){
             return ResponseEntity.notFound().build();
         }

@@ -38,13 +38,13 @@ public class UsuarioController {
         return repository.save(user);
     }
 
-    @DeleteMapping("/api/{id}")
-    public void delete(@PathVariable Integer id) {
-        repository.deleteById(id);
-    }
-
     @PostMapping("/api/{id}")
     public ResponseEntity update(@PathVariable Integer id, @RequestBody Usuario user) {
         return repository.update(id, user);
+    }
+
+    @DeleteMapping("/api/{id}")
+    public void delete(@PathVariable Integer id) {
+        repository.deleteById(id);
     }
 }
