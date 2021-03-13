@@ -17,7 +17,7 @@ public class UsuarioService{
 
 
     public ArrayList<Usuario> findAll() {
-        var it = repository.findAll();
+        var it = repository.findAllByOrderById();
         var users = new ArrayList<Usuario>();
         it.forEach(users::add);
         return users;

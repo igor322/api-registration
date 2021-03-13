@@ -8,6 +8,7 @@ import java.util.ArrayList;
 
 @Repository
 public interface UsuarioRepository extends CrudRepository<Usuario, Integer>  {
+    ArrayList<Usuario> findAllByOrderById();
     ArrayList<Usuario> findByNomeIgnoreCase(String nome);
     ArrayList<Usuario> findByMatricula(Integer matricula);
 }
