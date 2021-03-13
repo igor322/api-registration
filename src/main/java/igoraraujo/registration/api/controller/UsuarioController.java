@@ -10,6 +10,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.ConstraintViolationException;
 import javax.validation.Valid;
 import java.sql.SQLException;
 
@@ -78,13 +79,8 @@ public class UsuarioController {
         return ResponseEntity.status(HttpStatus.CONFLICT).build();
     }
 
-    @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity bodyInvalid() {
-        return ResponseEntity.status(HttpStatus.CONFLICT).build();
-    }
-
-    @ExceptionHandler(MismatchedInputException.class)
-    public ResponseEntity mismatchedInput() {
+    @ExceptionHandler({MethodArgumentNotValidException.class,MismatchedInputException.class,ConstraintViolationException.class})
+    public ResponseEntity badRequestHandler() {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }
