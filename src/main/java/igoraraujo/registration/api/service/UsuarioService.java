@@ -3,10 +3,11 @@ package igoraraujo.registration.api.service;
 import igoraraujo.registration.api.model.Usuario;
 import igoraraujo.registration.api.repositery.UsuarioRepository;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Optional;
 
 @Service
 public class UsuarioService{
@@ -15,54 +16,30 @@ public class UsuarioService{
     private UsuarioRepository repository;
 
 
-    public ResponseEntity findAll() {
+    public ArrayList<Usuario> findAll() {
         var it = repository.findAll();
         var users = new ArrayList<Usuario>();
         it.forEach(users::add);
-        if(users.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().body(users);
+        return users;
     }
 
-    public ResponseEntity findById(String id) {
-        int test = Integer.parseInt(id);
-        return repository.findById(test)
-                .map(record -> ResponseEntity.ok().body(record))
-                .orElse(ResponseEntity.notFound().build());
+    public Optional<Usuario> findById(Integer id){
+        return repository.findById(id);
     }
 
-    public ResponseEntity findByNome(String nome) {
-        var it = repository.findByNomeIgnoreCase(nome);
-        if(it.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().body(it);
+    public ArrayList<Usuario> findByNome(String nome) {
+        return repository.findByNomeIgnoreCase(nome);
     }
 
-    public ResponseEntity findByMatricula(Integer matricula) {
-        var it = repository.findByMatricula(matricula);
-        if(it.isEmpty()){
-            return ResponseEntity.notFound().build();
-        }
-        return ResponseEntity.ok().body(it);
+    public ArrayList<Usuario> findByMatricula(Integer matricula) {
+        return repository.findByMatricula(matricula);
     }
 
-    public ResponseEntity deleteById(Integer id) {
-        return repository.findById(id)
-                .map(record -> {
-                    repository.deleteById(id);
-                    return ResponseEntity.ok().build();
-                }).orElse(ResponseEntity.notFound().build());
+    public void save(Usuario user) {
+        repository.save(user);
     }
 
-
-    public ResponseEntity save(Usuario user) {
-        Usuario saved = repository.save(user);
-        return ResponseEntity.ok().body(saved);
-    }
-
-    public ResponseEntity  update(Integer id, Usuario user){
+    public Optional<Object> update(Integer id, Usuario user){
         return repository.findById(id)
                 .map(record -> {
                     record.setNome(user.getNome());
@@ -70,7 +47,15 @@ public class UsuarioService{
                     record.setMatricula(user.getMatricula());
                     record.setTelefone(user.getTelefone());
                     Usuario updated = repository.save(record);
-                    return ResponseEntity.ok().body(updated);
-                }).orElse(ResponseEntity.notFound().build());
+                    return updated;
+                });
+    }
+
+    public HttpStatus deleteById(Integer id){
+        return repository.findById(id)
+                .map(record -> {
+                    repository.delete(record);
+                    return HttpStatus.OK;
+                }).orElse(HttpStatus.NOT_FOUND);
     }
 }

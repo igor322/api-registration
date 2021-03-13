@@ -1,50 +1,90 @@
 package igoraraujo.registration.api.controller;
 
+import com.fasterxml.jackson.databind.exc.MismatchedInputException;
 import igoraraujo.registration.api.model.Usuario;
 import igoraraujo.registration.api.service.UsuarioService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.dao.DataIntegrityViolationException;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.sql.SQLException;
 
 @RestController
 public class UsuarioController {
+
     @Autowired
-    private UsuarioService repository;
+    private UsuarioService service;
 
     @GetMapping("/api")
     public ResponseEntity allUsers() {
-        return repository.findAll();
+        var users = service.findAll();
+        if(users.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(users);
     }
 
     @GetMapping(path = "/api/id/{codigo}")
-    public ResponseEntity consultar(@PathVariable String codigo) {
-        return repository.findById(codigo);
+    public ResponseEntity consultar(@PathVariable Integer codigo) {
+        return service.findById(codigo)
+                .map(record -> ResponseEntity.ok().body(record))
+                .orElse(ResponseEntity.notFound().build());
     }
 
     @GetMapping("/api/nome/{nome}")
     public ResponseEntity findByName(@PathVariable String nome) {
-        return repository.findByNome(nome);
+        var users = service.findByNome(nome);
+        if(users.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(users);
     }
 
     @GetMapping("/api/matricula/{numero}")
     public ResponseEntity findByMatricula(@PathVariable Integer numero) {
-        return repository.findByMatricula(numero);
+        var users = service.findByMatricula(numero);
+        if(users.isEmpty()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(users);
     }
 
     @PostMapping(path = "/api")
-    public ResponseEntity salvar(@Valid @RequestBody Usuario user) {
-        return repository.save(user);
+    public void salvar(@Valid @RequestBody Usuario user){
+        service.save(user);
     }
 
     @PostMapping("/api/{id}")
     public ResponseEntity update(@PathVariable Integer id, @RequestBody Usuario user) {
-        return repository.update(id, user);
+        var updt = service.update(id, user);
+        if(updt.isPresent()){
+            return ResponseEntity.ok().body(updt);
+        } else {
+            return ResponseEntity.notFound().build();
+        }
     }
 
     @DeleteMapping("/api/{id}")
-    public void delete(@PathVariable Integer id) {
-        repository.deleteById(id);
+    public ResponseEntity delete(@PathVariable Integer id) {
+        return ResponseEntity.status(service.deleteById(id)).build();
+    }
+
+    @ExceptionHandler({SQLException.class, DataIntegrityViolationException.class})
+    public ResponseEntity databaseError() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity bodyInvalid() {
+        return ResponseEntity.status(HttpStatus.CONFLICT).build();
+    }
+
+    @ExceptionHandler(MismatchedInputException.class)
+    public ResponseEntity mismatchedInput() {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
     }
 }
