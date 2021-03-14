@@ -12,6 +12,7 @@ import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 @SpringBootTest
 @AutoConfigureMockMvc
 class RegistrationApiApplicationTests {
+
 	@Autowired
 	private UsuarioController controller;
 
@@ -19,6 +20,4 @@ class RegistrationApiApplicationTests {
 	public void contextLoads() throws Exception {
 		assertThat(controller).isNotNull();
 	}
-
-
 }

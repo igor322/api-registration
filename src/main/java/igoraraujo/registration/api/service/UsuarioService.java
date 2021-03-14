@@ -39,7 +39,7 @@ public class UsuarioService{
         repository.save(user);
     }
 
-    public Optional<Object> update(Integer id, Usuario user){
+    public Optional<Usuario> update(Integer id, Usuario user){
         return repository.findById(id)
                 .map(record -> {
                     record.setNome(user.getNome());

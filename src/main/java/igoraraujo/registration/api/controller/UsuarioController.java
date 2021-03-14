@@ -29,11 +29,20 @@ public class UsuarioController {
         return ResponseEntity.ok().body(users);
     }
 
-    @GetMapping(path = "/api/id/{codigo}")
-    public ResponseEntity consultar(@PathVariable Integer codigo) {
+    /*@GetMapping(path = "/api/id/{codigo}")
+    public ResponseEntity findById(@PathVariable Integer codigo) {
         return service.findById(codigo)
                 .map(record -> ResponseEntity.ok().body(record))
                 .orElse(ResponseEntity.notFound().build());
+    }*/
+
+    @GetMapping(path = "/api/id/{codigo}")
+    public ResponseEntity findById(@PathVariable Integer codigo) {
+        var users = service.findById(codigo);
+        if(!users.isPresent()){
+            return ResponseEntity.notFound().build();
+        }
+        return ResponseEntity.ok().body(users);
     }
 
     @GetMapping("/api/nome/{nome}")
@@ -62,11 +71,11 @@ public class UsuarioController {
     @PostMapping("/api/{id}")
     public ResponseEntity update(@PathVariable Integer id, @RequestBody Usuario user) {
         var updt = service.update(id, user);
-        if(updt.isPresent()){
-            return ResponseEntity.ok().body(updt);
-        } else {
+        if(updt.isEmpty()){
             return ResponseEntity.notFound().build();
         }
+        return ResponseEntity.ok().body(updt);
+
     }
 
     @DeleteMapping("/api/{id}")
